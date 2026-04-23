@@ -24,10 +24,10 @@ app.use("/api/auth", authRouter);
 app.use("/uploads", express.static("uploads"));
 
 // Load ABIs
-const RegistryABI    = require("../artifacts/contracts/PropertyRegistry.sol/PropertyRegistry.json");
-const MarketplaceABI = require("../artifacts/contracts/Marketplace.sol/Marketplace.json");
-const NFTABI         = require("../artifacts/contracts/PropertyNFT.sol/PropertyNFT.json");
-const FractionalABI  = require("../artifacts/contracts/FractionalOwnership.sol/FractionalOwnership.json");
+const RegistryABI    = require("./abis/PropertyRegistry.json");
+const MarketplaceABI = require("./abis/Marketplace.json");
+const NFTABI         = require("./abis/PropertyNFT.json");
+const FractionalABI  = require("./abis/FractionalOwnership.json");
 
 // Connect to blockchain
 const provider    = new ethers.JsonRpcProvider(process.env.BLOCKCHAIN_RPC);
