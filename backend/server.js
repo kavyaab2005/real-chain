@@ -18,7 +18,15 @@ const io     = new Server(server, {
   cors: { origin: "*", methods: ["GET", "POST"] }
 });
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://real-chain-lilac.vercel.app",
+    "*"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 app.use(express.json());
 app.use("/api/auth", authRouter);
 app.use("/uploads", express.static("uploads"));
