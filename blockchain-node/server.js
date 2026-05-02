@@ -10,7 +10,7 @@ app.use(express.json());
 let hardhatReady = false;
 
 // Wait for hardhat to be ready
-function waitForHardhat(retries = 30) {
+function waitForHardhat(retries = 60) {
   return new Promise((resolve) => {
     const check = () => {
       const req = http.request({
@@ -28,7 +28,7 @@ function waitForHardhat(retries = 30) {
         if (retries > 0) {
           retries--;
           console.log(`Waiting for Hardhat... (${retries} retries left)`);
-          setTimeout(check, 3000);
+          setTimeout(check, 5000);
         } else {
           resolve(false);
         }
@@ -37,6 +37,7 @@ function waitForHardhat(retries = 30) {
       req.end();
     };
     setTimeout(check, 5000);
+    setTimeout(check, 15000);
   });
 }
 
