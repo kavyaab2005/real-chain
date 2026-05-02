@@ -16,5 +16,10 @@ export default defineConfig({
       chainType: "l1",
       url: "http://127.0.0.1:8545",
     },
+    render: {
+      type: "http",
+      chainType: "l1",
+      url: "https://realchain-node.onrender.com",
+    },
   },
 });
