@@ -61,7 +61,7 @@ const PRIVATE_KEYS = [
  "c0b13d3563755f05e81604c74df5dd631f379063bb084d185ffba7af03c93ca8",
 ];
 
-const REGISTRY_ADDRESS = "0xD4c35c0a10F16ae330CcD2745e1C300ac3F35962";
+const REGISTRY_ADDRESS = "0x12621E7Df85CF9043b786096d6b865ae7d905Ef3";
 const REGISTRY_ABI = [
   "function listProperty(string memory _location, uint256 _areaSqFt, uint256 _price, string memory _ipfsHash) external returns (uint256)"
 ];
