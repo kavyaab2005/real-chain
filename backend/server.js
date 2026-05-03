@@ -261,11 +261,11 @@ app.get("/api/analytics", async (req, res) => {
     );
 
     // Price by city
-    const cityPrices = {};
-    props.forEach(p => {
-      const city = p.location.split(",").pop().trim();
-      if (!cityPrices[city]) cityPrices[city] = [];
-      cityPrices[city].push(parseFloat(ethers.formatEther(p.price)));
+    // Price by city
+const cityPrices = {};
+props.forEach(p => {
+  const parts = p.location.split(",");
+  const city = parts.length > 1 ? parts[parts.length - 1].trim() : parts[0].trim();
     });
 
     const cityAvgPrices = Object.entries(cityPrices).map(([city, prices]) => ({
