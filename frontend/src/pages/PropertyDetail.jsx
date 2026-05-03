@@ -20,7 +20,7 @@ export default function PropertyDetail() {
 
   const loadProperty = async () => {
     try {
-      const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
+      const provider = new ethers.JsonRpcProvider("https://ethereum-sepolia-rpc.publicnode.com");
       const registry = new ethers.Contract(addresses.registry, RegistryABI.abi, provider);
       const marketplace = new ethers.Contract(addresses.marketplace, MarketplaceABI.abi, provider);
 

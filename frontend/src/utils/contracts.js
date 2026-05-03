@@ -44,7 +44,7 @@ export const buyProperty = async (signer, propertyId, priceEther) => {
 
 // Get all properties
 export const getAllProperties = async () => {
-  const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
+  const provider = new ethers.JsonRpcProvider("https://ethereum-sepolia-rpc.publicnode.com");
   const registry = new ethers.Contract(
     addresses.registry,
     RegistryABI.abi,
