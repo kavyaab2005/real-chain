@@ -33,3 +33,4 @@ backend/.env
 
 # Backend uploads
 backend/uploads/
+hardhat.config.ts

@@ -1,0 +1,39 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-3832c304ca0f3bea676e495abb471e452f247322",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "userSourceNameMap": {
+    "contracts/PropertyRegistry.sol": "project/contracts/PropertyRegistry.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/PropertyRegistry.sol": {
+        "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.20;\r\n\r\ncontract PropertyRegistry {\r\n    struct Property {\r\n        uint256 id;\r\n        string location;\r\n        uint256 areaSqFt;\r\n        uint256 price;\r\n        address owner;\r\n        bool isForSale;\r\n        string ipfsHash;\r\n        uint256 listedAt;\r\n    }\r\n\r\n    uint256 public propertyCount;\r\n    mapping(uint256 => Property) public properties;\r\n    mapping(address => uint256[]) public ownerProperties;\r\n\r\n    event PropertyListed(uint256 indexed id, address indexed owner, uint256 price, string location);\r\n    event PriceUpdated(uint256 indexed id, uint256 oldPrice, uint256 newPrice);\r\n    event PropertyStatusChanged(uint256 indexed id, bool isForSale);\r\n\r\n    modifier onlyOwner(uint256 _id) {\r\n        require(properties[_id].owner == msg.sender, \"Not the owner\");\r\n        _;\r\n    }\r\n\r\n    function listProperty(\r\n        string memory _location,\r\n        uint256 _areaSqFt,\r\n        uint256 _price,\r\n        string memory _ipfsHash\r\n    ) external returns (uint256) {\r\n        require(_price > 0, \"Price must be > 0\");\r\n        require(_areaSqFt > 0, \"Area must be > 0\");\r\n\r\n        propertyCount++;\r\n        properties[propertyCount] = Property({\r\n            id:        propertyCount,\r\n            location:  _location,\r\n            areaSqFt:  _areaSqFt,\r\n            price:     _price,\r\n            owner:     msg.sender,\r\n            isForSale: true,\r\n            ipfsHash:  _ipfsHash,\r\n            listedAt:  block.timestamp\r\n        });\r\n        ownerProperties[msg.sender].push(propertyCount);\r\n\r\n        emit PropertyListed(propertyCount, msg.sender, _price, _location);\r\n        return propertyCount;\r\n    }\r\n\r\n    function updatePrice(uint256 _id, uint256 _newPrice) external onlyOwner(_id) {\r\n        uint256 old = properties[_id].price;\r\n        properties[_id].price = _newPrice;\r\n        emit PriceUpdated(_id, old, _newPrice);\r\n    }\r\n\r\n    function toggleSaleStatus(uint256 _id) external onlyOwner(_id) {\r\n        properties[_id].isForSale = !properties[_id].isForSale;\r\n        emit PropertyStatusChanged(_id, properties[_id].isForSale);\r\n    }\r\n\r\n    function transferOwnership(uint256 _id, address _newOwner) external {\r\n        require(\r\n            msg.sender == properties[_id].owner,\r\n            \"Not authorized\"\r\n        );\r\n        properties[_id].owner = _newOwner;\r\n        properties[_id].isForSale = false;\r\n        ownerProperties[_newOwner].push(_id);\r\n    }\r\n\r\n    function getProperty(uint256 _id) external view returns (Property memory) {\r\n        return properties[_id];\r\n    }\r\n\r\n    function getAllProperties() external view returns (Property[] memory) {\r\n        Property[] memory all = new Property[](propertyCount);\r\n        for (uint256 i = 1; i <= propertyCount; i++) {\r\n            all[i - 1] = properties[i];\r\n        }\r\n        return all;\r\n    }\r\n\r\n    function getOwnerProperties(address _owner) external view returns (uint256[] memory) {\r\n        return ownerProperties[_owner];\r\n    }\r\n}"
+      }
+    }
+  }
+}
