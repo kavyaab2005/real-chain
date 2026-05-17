@@ -19,7 +19,7 @@ export default function FractionalOwnership() {
 
   const loadProperties = async () => {
     try {
-      const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
+      const provider = new ethers.JsonRpcProvider("https://ethereum-sepolia-rpc.publicnode.com");
       const contract = new ethers.Contract(
         addresses.fractional, FractionalABI.abi, provider
       );

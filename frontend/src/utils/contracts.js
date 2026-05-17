@@ -1,12 +1,37 @@
 import { ethers } from "ethers";
-import addresses from "../contracts/addresses.json";
-import RegistryABI from "../contracts/PropertyRegistry.json";
+import addresses      from "../contracts/addresses.json";
+import RegistryABI    from "../contracts/PropertyRegistry.json";
 import MarketplaceABI from "../contracts/Marketplace.json";
-import NFTABI from "../contracts/PropertyNFT.json";
+import NFTABI         from "../contracts/PropertyNFT.json";
+
+const SEPOLIA_RPC = "https://ethereum-sepolia-rpc.publicnode.com";
 
 // Connect MetaMask wallet
 export const connectWallet = async () => {
   if (!window.ethereum) throw new Error("MetaMask not found. Please install it.");
+  
+  // Force switch to Sepolia
+  try {
+    await window.ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0xaa36a7" }], // Sepolia chain ID
+    });
+  } catch (switchError) {
+    // Add Sepolia if not found
+    if (switchError.code === 4902) {
+      await window.ethereum.request({
+        method: "wallet_addEthereumChain",
+        params: [{
+          chainId: "0xaa36a7",
+          chainName: "Sepolia Testnet",
+          nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+          rpcUrls: [SEPOLIA_RPC],
+          blockExplorerUrls: ["https://sepolia.etherscan.io"],
+        }],
+      });
+    }
+  }
+
   const provider = new ethers.BrowserProvider(window.ethereum);
   await provider.send("eth_requestAccounts", []);
   const signer  = await provider.getSigner();
@@ -36,15 +61,23 @@ export const listProperty = async (signer, { location, area, priceEther, ipfsHas
 // Buy a property
 export const buyProperty = async (signer, propertyId, priceEther) => {
   const { marketplace } = await getContracts(signer);
+
+  // Get current gas price
+  const provider = new ethers.JsonRpcProvider(SEPOLIA_RPC);
+  const feeData  = await provider.getFeeData();
+
   const tx = await marketplace.initiatePurchase(propertyId, {
-    value: ethers.parseEther(priceEther.toString()),
+    value:    ethers.parseEther(priceEther.toString()),
+    gasLimit: 300000,
+    maxFeePerGas:         feeData.maxFeePerGas,
+    maxPriorityFeePerGas: feeData.maxPriorityFeePerGas,
   });
   return tx.wait();
 };
 
 // Get all properties
 export const getAllProperties = async () => {
-  const provider = new ethers.JsonRpcProvider("https://ethereum-sepolia-rpc.publicnode.com");
+  const provider = new ethers.JsonRpcProvider(SEPOLIA_RPC);
   const registry = new ethers.Contract(
     addresses.registry,
     RegistryABI.abi,
@@ -63,14 +96,38 @@ export const getAllProperties = async () => {
   }));
 };
 
+// Get single property
+export const getProperty = async (id) => {
+  const provider = new ethers.JsonRpcProvider(SEPOLIA_RPC);
+  const registry = new ethers.Contract(
+    addresses.registry,
+    RegistryABI.abi,
+    provider
+  );
+  const p = await registry.getProperty(id);
+  return {
+    id:        Number(p.id),
+    location:  p.location,
+    areaSqFt:  Number(p.areaSqFt),
+    price:     ethers.formatEther(p.price),
+    owner:     p.owner,
+    isForSale: p.isForSale,
+    ipfsHash:  p.ipfsHash,
+    listedAt:  new Date(Number(p.listedAt) * 1000).toLocaleDateString(),
+  };
+};
+
 // Get properties by owner
 export const getMyProperties = async (signer) => {
-  const address = await signer.getAddress();
-  const { registry } = await getContracts(signer);
-  const ids = await registry.getOwnerProperties(address);
-  const props = await Promise.all(
-    ids.map((id) => registry.getProperty(id))
+  const address  = await signer.getAddress();
+  const provider = new ethers.JsonRpcProvider(SEPOLIA_RPC);
+  const registry = new ethers.Contract(
+    addresses.registry,
+    RegistryABI.abi,
+    provider
   );
+  const ids   = await registry.getOwnerProperties(address);
+  const props = await Promise.all(ids.map((id) => registry.getProperty(id)));
   return props.map((p) => ({
     id:        Number(p.id),
     location:  p.location,
