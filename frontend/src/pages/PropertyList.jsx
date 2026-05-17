@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchAllProperties } from "../utils/api";
-import { connectWallet, buyProperty } from "../utils/contracts";
+import { getAllProperties, connectWallet, buyProperty } from "../utils/contracts";
 import { toast, ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
@@ -23,7 +22,7 @@ export default function PropertyList() {
 
   const loadProperties = async () => {
     try {
-      const props = await fetchAllProperties();
+      const props = await getAllProperties();
       setProperties(props);
     } catch (err) {
       toast.error("Error loading properties: " + err.message);
